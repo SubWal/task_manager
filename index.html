@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow — Task Manager</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+
+  <body>
+    <!-- Skip link for accessibility -->
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Sidebar nav -->
+    <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__header">
+        <div class="brand">
+          <div class="brand__name">TaskFlow</div>
+          <div class="brand__tagline">Plan. Do. Done.</div>
+        </div>
+        <button class="icon-btn" type="button" aria-label="Close menu" id="closeSidebarBtn">
+          ✕
+        </button>
+      </div>
+      <ul class="sidebar__nav">
+        <li><a class="sidebar__link sidebar__link--active" href="#">All Tasks</a></li>
+        <li><a class="sidebar__link" href="#">Todo</a></li>
+        <li><a class="sidebar__link" href="#">In Progress</a></li>
+        <li><a class="sidebar__link" href="#">Blocked</a></li>
+        <li><a class="sidebar__link" href="#">Done</a></li>
+      </ul>
+      <div class="sidebar__footer">
+        <span class="muted">TaskFlow v1.0</span>
+      </div>
+    </nav>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Top bar -->
+    <header class="topbar" role="banner">
+      <div class="topbar__left">
+        <button class="icon-btn" type="button" aria-label="Open menu" id="menuBtn">
+          ☰
+        </button>
+        <div class="brand">
+          <div class="brand__name">TaskFlow</div>
+          <div class="brand__tagline">Plan. Do. Done.</div>
+        </div>
+      </div>
+
+      <div class="topbar__right">
+        <label class="sr-only" for="searchInput">Search tasks</label>
+        <input
+          id="searchInput"
+          class="input"
+          type="search"
+          placeholder="Search tasks..."
+          autocomplete="off"
+        />
+        <button class="btn btn--primary" type="button" id="openModalBtn">
+          + Add Task
+        </button>
+      </div>
+    </header>
+
+    <main id="main" class="app" role="main">
+      <div class="layout">
+        <!-- Left: list -->
+        <section class="panel panel--list" aria-label="Task list panel">
+          <div class="panel__header">
+            <h1 class="h1">Tasks</h1>
+
+            <div class="filters" aria-label="Task filters">
+              <div class="field">
+                <label class="label" for="statusFilter">Status</label>
+                <select id="statusFilter" class="select">
+                  <option value="all">All</option>
+                  <option value="todo">Todo</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="label" for="priorityFilter">Priority</label>
+                <select id="priorityFilter" class="select">
+                  <option value="all">All</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="label" for="sortBy">Sort</label>
+                <select id="sortBy" class="select">
+                  <option value="due-asc">Due date (soonest)</option>
+                  <option value="due-desc">Due date (latest)</option>
+                  <option value="priority-desc">Priority (high → low)</option>
+                  <option value="title-asc">Title (A → Z)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel__body">
+            <!-- Empty state (toggle via JS) -->
+            <div class="empty" id="emptyState" hidden>
+              <div class="empty__title">No tasks yet</div>
+              <p class="empty__text">Add your first task to get started.</p>
+              <button class="btn btn--primary" type="button" id="emptyAddBtn">
+                + Add Task
+              </button>
+            </div>
+
+            <!-- Task list -->
+            <ul class="task-list" id="taskList" aria-label="Tasks">
+              <!-- Tasks rendered by JS -->
+            </ul>
+          </div>
+
+          <footer class="panel__footer" aria-label="App status">
+            <span class="muted">Saved locally</span>
+            <span class="dot" aria-hidden="true">•</span>
+            <span class="muted">Seeded from API</span>
+          </footer>
+        </section>
+
+        <!-- Right: details preview (desktop) -->
+        <aside class="panel panel--detail" aria-label="Task detail panel">
+          <div class="panel__header">
+            <h2 class="h2">Details</h2>
+          </div>
+
+          <div class="panel__body">
+            <!-- Empty state when nothing is selected -->
+            <div class="detail-empty" id="detailEmpty">
+              <div class="detail-empty__title">Select a task</div>
+              <p class="detail-empty__text">Click a task to preview details here.</p>
+            </div>
+
+            <!-- Example details (JS can toggle hidden) -->
+            <article class="detail" id="detailView" hidden>
+              <header class="detail__header">
+                <h3 class="detail__title">Finish report</h3>
+                <div class="detail__badges">
+                  <span class="pill">In Progress</span>
+                  <span class="pill">High</span>
+                </div>
+              </header>
+
+              <dl class="detail__grid">
+                <div class="kv">
+                  <dt>Due</dt>
+                  <dd>Mar 10, 2026</dd>
+                </div>
+                <div class="kv">
+                  <dt>Tags</dt>
+                  <dd>school, writing</dd>
+                </div>
+                <div class="kv">
+                  <dt>Estimate</dt>
+                  <dd>45 min</dd>
+                </div>
+              </dl>
+
+              <div class="detail__section">
+                <div class="label">Description</div>
+                <p class="detail__desc">
+                  Write intro + conclusion. Check citations. Submit before midnight.
+                </p>
+              </div>
+
+              <div class="detail__actions">
+                <button class="btn btn--primary" type="button">Mark Done</button>
+                <button class="btn" type="button">Edit</button>
+                <button class="btn btn--danger" type="button">Delete</button>
+              </div>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- Toast region (accessible live region) -->
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true" hidden>
+      Task added successfully 
+    </div>
+
+    <!-- Modal overlay -->
+    <div class="modal-overlay" id="taskModal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal__header">
+          <h2 class="h2" id="modalTitle">Add Task</h2>
+          <button class="icon-btn" type="button" aria-label="Close modal" id="closeModalBtn">
+            ✕
+          </button>
+        </div>
+
+        <form class="modal__body" id="taskForm" novalidate>
+          <div class="field">
+            <label class="label" for="title">Title <span class="req">*</span></label>
+            <input
+              class="input"
+              id="title"
+              name="title"
+              type="text"
+              minlength="3"
+              required
+              placeholder="e.g., Finish report"
+            />
+            <div class="help" id="titleHelp">Must be at least 3 characters.</div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="description">Description</label>
+            <textarea
+              class="textarea"
+              id="description"
+              name="description"
+              rows="3"
+              maxlength="500"
+              placeholder="Optional notes..."
+            ></textarea>
+            <div class="help">Max 500 characters.</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label class="label" for="priority">Priority</label>
+              <select class="select" id="priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="label" for="status">Status</label>
+              <select class="select" id="status" name="status">
+                <option value="todo" selected>Todo</option>
+                <option value="in-progress">In Progress</option>
+                <option value="blocked">Blocked</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label class="label" for="dueDate">Due Date <span class="req">*</span></label>
+              <input class="input" id="dueDate" name="dueDate" type="date" required />
+              <div class="help">Due date cannot be in the past.</div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="estimate">Estimated minutes</label>
+              <input
+                class="input"
+                id="estimate"
+                name="estimate"
+                type="number"
+                min="1"
+                max="10000"
+                placeholder="30"
+              />
+              <div class="help">Optional. 1–10000.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="tags">Tags</label>
+            <input class="input" id="tags" name="tags" type="text" placeholder="school, urgent" />
+            <div class="help">Comma-separated.</div>
+          </div>
+
+          <div class="modal__footer">
+            <button class="btn btn--primary" type="submit" id="saveTaskBtn">Save Task</button>
+            <button class="btn" type="button" id="cancelBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Details — TaskFlow</title>
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar" role="banner">
+    <div class="topbar__left">
+      <a class="btn btn--ghost" href="./index.html" id="backLink">← Back</a>
+      <div class="brand">
+        <div class="brand__name">TaskFlow</div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="app" role="main">
+    <div id="statusBanner" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <section class="panel" aria-label="Task details">
+      <div class="panel__header">
+        <h1 class="h1">Task Details</h1>
+      </div>
+      <div class="panel__body">
+        <div id="loading">Loading…</div>
+        <article class="detail" id="detailView" hidden>
+          <header class="detail__header">
+            <h2 class="detail__title" id="taskTitle"></h2>
+            <div class="detail__badges" id="taskBadges"></div>
+          </header>
+
+          <dl class="detail__grid" id="taskGrid"></dl>
+
+          <div class="detail__section">
+            <div class="label">Description</div>
+            <p class="detail__desc" id="taskDesc"></p>
+          </div>
+
+          <div class="detail__actions">
+            <button class="btn btn--primary" type="button" id="markDoneBtn">Mark Done</button>
+            <a class="btn" href="./index.html">Back to list</a>
+            <button class="btn btn--danger" type="button" id="deleteBtn">Delete</button>
+          </div>
+        </article>
+
+        <div id="notFound" hidden>
+          <div class="empty">
+            <div class="empty__title">Task not found</div>
+            <p class="empty__text">This task may have been deleted.</p>
+            <a class="btn btn--primary" href="./index.html">Back to list</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="src/taskPage.js"></script>
+</body>
+</html>
