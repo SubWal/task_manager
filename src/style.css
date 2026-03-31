@@ -199,12 +199,26 @@ body {
   min-width: 260px;
 }
 @media (max-width: 640px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+  .topbar__left .brand__tagline {
+    display: none;
+  }
   .topbar__right {
     flex: 1;
     min-width: 0;
   }
+  .topbar__right .input {
+    min-width: 0;
+    flex: 1;
+  }
   .topbar__right .btn--primary {
     white-space: nowrap;
+    padding: 10px 10px;
+    font-size: 13px;
   }
 }
 
@@ -250,6 +264,17 @@ body {
 
 .panel__body {
   padding: var(--space-4);
+}
+@media (max-width: 640px) {
+  .panel__header {
+    padding: var(--space-3);
+  }
+  .panel__body {
+    padding: var(--space-3);
+  }
+  .app {
+    padding: var(--space-3) var(--space-2);
+  }
 }
 
 .panel__footer {
@@ -432,6 +457,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .task-card__sub {
@@ -445,8 +471,15 @@ body {
 
 .task-card__actions {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+  .task-card__actions .btn {
+    padding: 6px 10px;
+    min-height: 36px;
+    font-size: 13px;
+  }
 }
 
 /* Badge + dot */
@@ -637,12 +670,24 @@ body {
 
 .modal {
   width: min(680px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;
   animation: modal-pop 180ms ease-out;
+}
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: var(--space-2);
+  }
+  .modal__header {
+    padding: var(--space-3);
+  }
+  .modal__body {
+    padding: var(--space-3);
+  }
 }
 
 @keyframes modal-pop {

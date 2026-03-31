@@ -1,24 +1,8 @@
-// ── Data Layer ──
-const STORAGE_KEY = "taskflow_tasks";
-
-function loadTasks() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
-
-function generateId() {
-  return Date.now() + Math.floor(Math.random() * 1000);
-}
+import { escapeHtml, formatDate, formatDateShort, showToast } from "./utils.js";
+import { fetchTasks, createTask, updateTaskAPI, deleteTaskAPI } from "./api.js";
 
 // ── State ──
-let tasks = loadTasks();
+let tasks = [];
 let editingTaskId = null;
 let selectedTaskId = null;
 
@@ -37,39 +21,11 @@ const emptyAddBtn = document.getElementById("emptyAddBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 const saveTaskBtn = document.getElementById("saveTaskBtn");
-const toast = document.getElementById("toast");
 const detailEmpty = document.getElementById("detailEmpty");
 const detailView = document.getElementById("detailView");
 
 // ── Helpers ──
 const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function formatDateShort(dateStr) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function showToast(message) {
-  toast.textContent = message;
-  toast.hidden = false;
-  clearTimeout(showToast._timer);
-  showToast._timer = setTimeout(() => {
-    toast.hidden = true;
-  }, 2500);
-}
 
 // ── Filtering & Sorting ──
 function getFilteredTasks() {
@@ -243,39 +199,52 @@ function validateForm() {
 }
 
 // ── CRUD ──
-function addTask(data) {
-  const task = { id: generateId(), ...data };
-  tasks.push(task);
-  saveTasks(tasks);
-  renderTaskList();
-  showToast("Task added successfully");
+async function addTask(data) {
+  try {
+    const task = await createTask(data);
+    tasks.push(task);
+    renderTaskList();
+    showToast("Task added successfully");
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to add task");
+  }
 }
 
-function updateTask(id, data) {
+async function updateTask(id, data) {
   const idx = tasks.findIndex((t) => t.id === id);
   if (idx === -1) return;
-  tasks[idx] = { ...tasks[idx], ...data };
-  saveTasks(tasks);
-  renderTaskList();
-  if (selectedTaskId === id) renderDetail(tasks[idx]);
-  showToast("Task updated");
+
+  try {
+    const updated = await updateTaskAPI(id, { ...tasks[idx], ...data });
+    tasks[idx] = updated;
+    renderTaskList();
+    if (selectedTaskId === id) renderDetail(updated);
+    showToast("Task updated");
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to update task");
+  }
 }
 
-function deleteTask(id) {
-  tasks = tasks.filter((t) => t.id !== id);
-  saveTasks(tasks);
-  if (selectedTaskId === id) renderDetail(null);
-  renderTaskList();
-  showToast("Task deleted");
+async function deleteTask(id) {
+  try {
+    await deleteTaskAPI(id);
+    tasks = tasks.filter((t) => t.id !== id);
+    if (selectedTaskId === id) renderDetail(null);
+    renderTaskList();
+    showToast("Task deleted");
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to delete task");
+  }
 }
 
-function toggleDone(id) {
+async function toggleDone(id) {
   const task = tasks.find((t) => t.id === id);
   if (!task) return;
-  task.status = task.status === "done" ? "todo" : "done";
-  saveTasks(tasks);
-  renderTaskList();
-  if (selectedTaskId === id) renderDetail(task);
+  const newStatus = task.status === "done" ? "todo" : "done";
+  await updateTask(id, { status: newStatus });
 }
 
 // ── Sidebar ──
@@ -331,7 +300,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !taskModal.hidden) closeModal();
 });
 
-taskForm.addEventListener("submit", (e) => {
+taskForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!validateForm()) return;
 
@@ -346,9 +315,9 @@ taskForm.addEventListener("submit", (e) => {
   };
 
   if (editingTaskId) {
-    updateTask(editingTaskId, data);
+    await updateTask(editingTaskId, data);
   } else {
-    addTask(data);
+    await addTask(data);
   }
 
   closeModal();
@@ -359,27 +328,31 @@ taskList.addEventListener("click", (e) => {
 
   const checkId = target.dataset.checkId;
   if (checkId) {
-    toggleDone(Number(checkId));
+    toggleDone(checkId);
     return;
   }
 
   const selectId = target.dataset.selectId;
   if (selectId) {
-    const task = tasks.find((t) => t.id === Number(selectId));
-    if (task) renderDetail(task);
+    if (window.innerWidth < 900) {
+      window.location.href = `./task.html?id=${selectId}`;
+    } else {
+      const task = tasks.find((t) => String(t.id) === selectId);
+      if (task) renderDetail(task);
+    }
     return;
   }
 
   const editId = target.dataset.editId;
   if (editId) {
-    const task = tasks.find((t) => t.id === Number(editId));
+    const task = tasks.find((t) => String(t.id) === editId);
     if (task) openModal(task);
     return;
   }
 
   const deleteId = target.dataset.deleteId;
   if (deleteId) {
-    deleteTask(Number(deleteId));
+    deleteTask(deleteId);
     return;
   }
 });
@@ -405,4 +378,14 @@ priorityFilter.addEventListener("change", renderTaskList);
 sortBy.addEventListener("change", renderTaskList);
 
 // ── Init ──
-renderTaskList();
+async function init() {
+  try {
+    tasks = await fetchTasks();
+    renderTaskList();
+  } catch (error) {
+    console.error("Failed to load tasks:", error);
+    showToast("Failed to load tasks from API");
+  }
+}
+
+init();

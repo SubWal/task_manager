@@ -1,0 +1,55 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Design homepage wireframe",
+      "description": "Create low-fidelity wireframes for the new homepage layout. Include hero section, feature grid, and footer.",
+      "priority": "high",
+      "status": "in-progress",
+      "dueDate": "2026-04-05",
+      "estimate": 90,
+      "tags": "design, ui"
+    },
+    {
+      "id": "2",
+      "title": "Set up CI/CD pipeline",
+      "description": "Configure GitHub Actions for automated testing and deployment to staging environment.",
+      "priority": "critical",
+      "status": "todo",
+      "dueDate": "2026-04-03",
+      "estimate": 120,
+      "tags": "devops, automation"
+    },
+    {
+      "id": "3",
+      "title": "Write unit tests for auth module",
+      "description": "Cover login, registration, and password reset flows with at least 80% coverage.",
+      "priority": "medium",
+      "status": "todo",
+      "dueDate": "2026-04-10",
+      "estimate": 60,
+      "tags": "testing, backend"
+    },
+    {
+      "id": "4",
+      "title": "Update README documentation",
+      "description": "Add setup instructions, environment variable guide, and contribution guidelines.",
+      "priority": "low",
+      "status": "done",
+      "dueDate": "2026-03-28",
+      "estimate": 30,
+      "tags": "docs"
+    },
+    {
+      "id": "5",
+      "title": "Fix mobile navigation bug",
+      "description": "Hamburger menu does not close after selecting a link on iOS Safari. Investigate touch event handling.",
+      "priority": "high",
+      "status": "blocked",
+      "dueDate": "2026-04-02",
+      "estimate": 45,
+      "tags": "bug, mobile"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

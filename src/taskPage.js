@@ -1,33 +1,9 @@
-const STORAGE_KEY = "taskflow_tasks";
-
-function loadTasks() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
+import { escapeHtml, formatDate } from "./utils.js";
+import { fetchTask, updateTaskAPI, deleteTaskAPI } from "./api.js";
 
 function getTaskId() {
   const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  return id ? Number(id) : null;
+  return params.get("id");
 }
 
 function renderTask(task) {
@@ -55,15 +31,21 @@ function showNotFound() {
   document.getElementById("notFound").hidden = false;
 }
 
-function init() {
+function showToast(message) {
+  const banner = document.getElementById("statusBanner");
+  banner.textContent = message;
+  banner.hidden = false;
+  setTimeout(() => { banner.hidden = true; }, 2500);
+}
+
+async function init() {
   const id = getTaskId();
   if (!id) {
     showNotFound();
     return;
   }
 
-  const tasks = loadTasks();
-  const task = tasks.find((t) => t.id === id);
+  const task = await fetchTask(id);
 
   if (!task) {
     showNotFound();
@@ -72,24 +54,27 @@ function init() {
 
   renderTask(task);
 
-  document.getElementById("markDoneBtn").addEventListener("click", () => {
-    const allTasks = loadTasks();
-    const t = allTasks.find((x) => x.id === id);
-    if (!t) return;
-    t.status = t.status === "done" ? "todo" : "done";
-    saveTasks(allTasks);
-    renderTask(t);
-    const banner = document.getElementById("statusBanner");
-    banner.textContent = t.status === "done" ? "Task marked done" : "Task marked todo";
-    banner.hidden = false;
-    setTimeout(() => { banner.hidden = true; }, 2500);
+  document.getElementById("markDoneBtn").addEventListener("click", async () => {
+    const newStatus = task.status === "done" ? "todo" : "done";
+    try {
+      const updated = await updateTaskAPI(id, { ...task, status: newStatus });
+      Object.assign(task, updated);
+      renderTask(task);
+      showToast(task.status === "done" ? "Task marked done" : "Task marked todo");
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to update task");
+    }
   });
 
-  document.getElementById("deleteBtn").addEventListener("click", () => {
-    const allTasks = loadTasks();
-    const filtered = allTasks.filter((x) => x.id !== id);
-    saveTasks(filtered);
-    window.location.href = "./index.html";
+  document.getElementById("deleteBtn").addEventListener("click", async () => {
+    try {
+      await deleteTaskAPI(id);
+      window.location.href = "./index.html";
+    } catch (error) {
+      console.error(error);
+      showToast("Failed to delete task");
+    }
   });
 }
 
