@@ -41,14 +41,14 @@
       "tags": "docs"
     },
     {
-      "id": "5",
-      "title": "Fix mobile navigation bug",
-      "description": "Hamburger menu does not close after selecting a link on iOS Safari. Investigate touch event handling.",
-      "priority": "high",
-      "status": "blocked",
-      "dueDate": "2026-04-02",
-      "estimate": 45,
-      "tags": "bug, mobile"
+      "title": "test",
+      "description": "",
+      "priority": "medium",
+      "status": "todo",
+      "dueDate": "2026-03-31",
+      "estimate": null,
+      "tags": "",
+      "id": "Kaorp0viqQg"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

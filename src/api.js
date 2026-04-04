@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001/tasks";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // GET all tasks
 export async function fetchTasks() {
