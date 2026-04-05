@@ -328,7 +328,7 @@ taskList.addEventListener("click", (e) => {
 
   const checkId = target.dataset.checkId;
   if (checkId) {
-    toggleDone(checkId);
+    deleteTask(checkId);
     return;
   }
 
